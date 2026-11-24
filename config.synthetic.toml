@@ -1,0 +1,65 @@
+[server]
+host = "127.0.0.1"
+port = 8001
+request_timeout_s = 120.0
+
+[engine]
+max_batch_size = 8
+max_queue_depth = 128
+max_prefills_per_step = 2
+max_prompt_tokens = 2048
+default_max_tokens = 64
+hard_max_tokens = 256
+seed = 0
+torch_threads = 0
+
+[memory]
+budget_gb = 1.0
+
+[prefix_cache]
+enabled = true
+block_tokens = 16
+max_blocks = 256
+
+[exact_cache]
+enabled = true
+max_entries = 256
+
+[semantic_cache]
+enabled = true
+max_entries = 256
+threshold = 0.999
+max_temperature = 0.0
+
+[admission]
+requests_per_minute = 6000
+tokens_per_minute = 4000000
+burst_requests = 512
+
+[router]
+default = "fast"
+fallback = ["fast"]
+
+[[router.rules]]
+backend = "quality"
+min_prompt_tokens = 400
+
+[[backends]]
+name = "fast"
+kind = "synthetic"
+model = "synthetic-fast"
+dtype = "float32"
+footprint_gb = 0.05
+resident = true
+hidden_size = 256
+layers = 4
+
+[[backends]]
+name = "quality"
+kind = "synthetic"
+model = "synthetic-quality"
+dtype = "float32"
+footprint_gb = 0.05
+resident = false
+hidden_size = 256
+layers = 4

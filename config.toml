@@ -1,0 +1,70 @@
+[server]
+host = "127.0.0.1"
+port = 8000
+api_keys = []
+request_timeout_s = 180.0
+
+[engine]
+max_batch_size = 8
+max_queue_depth = 64
+max_prefills_per_step = 1
+max_prompt_tokens = 2048
+default_max_tokens = 128
+hard_max_tokens = 512
+seed = 0
+torch_threads = 6
+
+[memory]
+budget_gb = 4.0
+
+[prefix_cache]
+enabled = true
+block_tokens = 16
+max_blocks = 512
+
+[exact_cache]
+enabled = true
+max_entries = 512
+
+[semantic_cache]
+enabled = true
+max_entries = 512
+threshold = 0.99
+max_temperature = 0.0
+
+[admission]
+requests_per_minute = 600
+tokens_per_minute = 120000
+burst_requests = 60
+
+[router]
+default = "fast"
+fallback = ["fast"]
+
+[[router.rules]]
+backend = "quality"
+min_prompt_tokens = 320
+
+[[router.rules]]
+backend = "quality"
+keywords = ["prove", "derive", "step by step", "explain why"]
+
+[[router.rules]]
+backend = "quality"
+min_max_tokens = 384
+
+[[backends]]
+name = "fast"
+kind = "hf"
+model = "Qwen/Qwen2.5-0.5B-Instruct"
+dtype = "float32"
+footprint_gb = 2.4
+resident = true
+
+[[backends]]
+name = "quality"
+kind = "hf"
+model = "Qwen/Qwen2.5-1.5B-Instruct"
+dtype = "bfloat16"
+footprint_gb = 3.5
+resident = false
